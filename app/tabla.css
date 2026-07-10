@@ -1,0 +1,396 @@
+/* ============================================================================
+   Virtual Tabla — modern, mobile-first, offline-first studio theme.
+   Fonts are self-hosted (shared with the main site). No external dependencies.
+   ============================================================================ */
+
+@font-face {
+	font-family: "Barlow Condensed";
+	font-style: normal; font-weight: 400; font-display: swap;
+	src: url("../fonts/BarlowCondensed-Regular.woff2") format("woff2");
+}
+@font-face {
+	font-family: "Barlow Condensed";
+	font-style: normal; font-weight: 500; font-display: swap;
+	src: url("../fonts/BarlowCondensed-Medium.woff2") format("woff2");
+}
+@font-face {
+	font-family: "Barlow Condensed";
+	font-style: normal; font-weight: 700; font-display: swap;
+	src: url("../fonts/BarlowCondensed-Bold.woff2") format("woff2");
+}
+
+:root {
+	--bg:      #160f09;
+	--bg-2:    #221710;
+	--ink:     #f3e7d6;
+	--muted:   #cbb190;
+	--line:    #3a2a1c;
+	--amber:   #ffb347;
+	--amber-2: #ff8c1a;
+	--bayan:   #ffcf7a;   /* bass-drum glow  */
+	--dayan:   #ff9d4d;   /* treble-drum glow */
+	--radius:  14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+/* Visible focus for keyboard users (mouse/touch use :focus, no ring). */
+.pad:focus-visible, .play:focus-visible, .label-toggle:focus-visible,
+.song:focus-visible, .tempo:focus-visible, a:focus-visible {
+	outline: 2px solid var(--amber);
+	outline-offset: 2px;
+}
+.zone:focus-visible { outline: none; }
+.zone:focus-visible .z-area { stroke: var(--amber); stroke-width: 2.4; fill: rgba(255, 179, 71, 0.12); }
+
+body {
+	background:
+		radial-gradient(120% 80% at 50% -10%, #2a1c10 0%, var(--bg) 60%) fixed,
+		var(--bg);
+	color: var(--ink);
+	font-family: "Futura PT Condensed", "Barlow Condensed", "Tw Cen MT Condensed", sans-serif;
+	font-size: 18px;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	min-height: 100vh;
+	padding-bottom: env(safe-area-inset-bottom);
+	touch-action: manipulation;
+}
+
+/* ---- top bar --------------------------------------------------------------- */
+.topbar {
+	display: flex; align-items: center; gap: 14px;
+	padding: 14px 18px;
+	border-bottom: 1px solid var(--line);
+	position: sticky; top: 0; z-index: 5;
+	background: rgba(22, 15, 9, 0.86);
+	backdrop-filter: blur(8px);
+	padding-top: calc(14px + env(safe-area-inset-top));
+}
+.topbar .home {
+	color: var(--ink); text-decoration: none; font-weight: 700;
+	letter-spacing: 0.02em; white-space: nowrap;
+}
+.topbar .home:hover { color: var(--amber); }
+.topbar-title {
+	flex: 1; text-align: center;
+	text-transform: uppercase; letter-spacing: 0.18em;
+	font-weight: 500; font-size: 0.85em; color: var(--muted);
+}
+.info-link { color: var(--muted); text-decoration: none; font-size: 0.95em; }
+.info-link:hover { color: var(--amber); }
+
+/* ---- layout ---------------------------------------------------------------- */
+.instrument {
+	max-width: 680px; margin: 0 auto;
+	padding: 18px 16px 40px;
+	display: flex; flex-direction: column; gap: 20px;
+}
+
+/* ---- the drums (stage) ----------------------------------------------------- */
+.stage {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 614 / 461;
+	border-radius: var(--radius);
+	overflow: hidden;
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), inset 0 0 0 1px var(--line);
+	background: #0d0805;
+	user-select: none; -webkit-user-select: none;
+}
+.stage-bg {
+	position: absolute; inset: 0;
+	width: 100%; height: 100%; object-fit: cover;
+	pointer-events: none; -webkit-user-drag: none;
+	opacity: 0.45; transition: opacity 0.6s ease;
+}
+.stage.ready .stage-bg { opacity: 1; }
+
+/* SVG zone overlay — one tappable, light-up region per bol, positioned to
+   match the original Flash app. */
+.zones {
+	position: absolute; inset: 0; width: 100%; height: 100%;
+	-webkit-tap-highlight-color: transparent;
+}
+.zone { cursor: pointer; }
+.zone .z-area {
+	fill: rgba(255, 255, 255, 0.015);
+	stroke: rgba(255, 213, 150, 0.5);
+	stroke-width: 1.4; stroke-dasharray: 3 4;
+	transition: stroke 0.18s ease, fill 0.18s ease;
+}
+.zone:hover .z-area { stroke: var(--amber); fill: rgba(255, 179, 71, 0.08); }
+.zone .z-glow {
+	fill: var(--dayan); opacity: 0;
+	mix-blend-mode: screen; pointer-events: none;
+	transform-box: fill-box; transform-origin: center;
+}
+.zone-bayan .z-glow { fill: var(--bayan); }
+.zone.lit .z-glow { animation: zoneflash 380ms ease-out; }
+@keyframes zoneflash {
+	0%   { opacity: 0;    transform: scale(0.7); }
+	16%  { opacity: 0.92; transform: scale(1);   }
+	100% { opacity: 0;    transform: scale(1.12); }
+}
+
+/* Bol legend drawn on the drums (toggleable). */
+.labels { pointer-events: none; transition: opacity 0.25s ease; }
+.labels .lead { stroke: var(--amber); stroke-width: 1.2; opacity: 0.7; }
+.labels .lbl {
+	fill: var(--ink); font-family: inherit; font-weight: 700;
+	font-size: 19px; letter-spacing: 0.02em;
+	paint-order: stroke; stroke: rgba(8, 5, 3, 0.92); stroke-width: 4px; stroke-linejoin: round;
+}
+.stage.labels-off .labels { opacity: 0; }
+
+.label-toggle {
+	position: absolute; top: 10px; right: 10px; z-index: 2;
+	font-family: inherit; font-size: 0.8em; letter-spacing: 0.08em; text-transform: uppercase;
+	color: var(--ink); background: rgba(22, 15, 9, 0.7);
+	border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px;
+	cursor: pointer; -webkit-tap-highlight-color: transparent;
+	backdrop-filter: blur(4px);
+}
+.label-toggle[aria-pressed="false"] { color: var(--muted); opacity: 0.8; }
+.label-toggle:hover { border-color: var(--amber-2); }
+
+/* Whole-stage pulse for the composed-solo phrase samples. */
+.stage.pulse::after {
+	content: ""; position: absolute; inset: 0; pointer-events: none;
+	box-shadow: inset 0 0 60px 10px rgba(255, 179, 71, 0.45);
+	animation: stagepulse 300ms ease-out;
+}
+@keyframes stagepulse { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+
+.loading {
+	position: absolute; inset: auto 0 14px; text-align: center;
+	color: var(--muted); font-size: 0.95em; margin: 0;
+}
+
+/* ---- bol pads -------------------------------------------------------------- */
+.pads-wrap { text-align: center; }
+.pads {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 10px;
+}
+.pad {
+	position: relative;
+	display: flex; flex-direction: column; align-items: center; justify-content: center;
+	gap: 2px;
+	padding: 14px 6px;
+	min-height: 64px;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	background: linear-gradient(180deg, var(--bg-2), #1a110a);
+	color: var(--ink);
+	font-family: inherit; cursor: pointer;
+	transition: transform 0.06s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+	-webkit-tap-highlight-color: transparent;
+}
+.pad:hover { border-color: var(--amber-2); }
+.pad-label { font-size: 1.5em; font-weight: 700; line-height: 1; letter-spacing: 0.01em; }
+.pad-key {
+	font-size: 0.72em; color: var(--muted); letter-spacing: 0.12em;
+	border: 1px solid var(--line); border-radius: 5px; padding: 0 5px;
+}
+.pad-bayan .pad-label { color: var(--bayan); }
+.pad-dayan .pad-label { color: var(--dayan); }
+.pad.struck {
+	animation: padhit 220ms ease-out;
+}
+@keyframes padhit {
+	0%   { transform: scale(0.94); box-shadow: 0 0 0 0 rgba(255,179,71,0.6); border-color: var(--amber); }
+	100% { transform: scale(1);    box-shadow: 0 0 18px 2px rgba(255,179,71,0); border-color: var(--line); }
+}
+.pads-hint { color: var(--muted); font-size: 0.9em; margin: 10px 0 0; }
+
+/* ---- transport ------------------------------------------------------------- */
+.transport {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas:
+		"play song"
+		"play tempo"
+		"bg   bg"
+		"dots dots";
+	gap: 12px 14px;
+	align-items: center;
+	padding: 16px;
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: linear-gradient(180deg, rgba(34,23,16,0.7), rgba(18,12,7,0.7));
+}
+.play {
+	grid-area: play;
+	width: 60px; height: 60px; border-radius: 50%;
+	border: 0; cursor: pointer;
+	background: linear-gradient(160deg, var(--amber), var(--amber-2));
+	color: #2a1605;
+	display: grid; place-items: center;
+	box-shadow: 0 6px 18px rgba(255,140,26,0.35);
+	transition: transform 0.08s ease, box-shadow 0.15s ease;
+	-webkit-tap-highlight-color: transparent;
+}
+.play:active { transform: scale(0.93); }
+.play svg { width: 26px; height: 26px; fill: currentColor; }
+.play .ico-stop { display: none; }
+.play.playing .ico-play { display: none; }
+.play.playing .ico-stop { display: block; }
+.play.playing {
+	background: linear-gradient(160deg, #ffd9a0, var(--amber));
+	box-shadow: 0 0 0 4px rgba(255,179,71,0.2), 0 6px 18px rgba(255,140,26,0.4);
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.song-field { grid-area: song; }
+.tempo-field { grid-area: tempo; }
+
+/* Background-song toggle — a pill that lights up when the accompaniment is on. */
+.bg-toggle {
+	grid-area: bg;
+	display: flex; align-items: center; gap: 9px;
+	padding: 9px 13px;
+	border: 1px solid var(--line); border-radius: 10px;
+	background: #1a110a; color: var(--muted);
+	font-family: inherit; font-size: 0.92em; letter-spacing: 0.02em;
+	cursor: pointer; -webkit-tap-highlight-color: transparent;
+	transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.bg-toggle svg {
+	width: 18px; height: 18px; flex: none;
+	fill: none; stroke: currentColor; stroke-width: 1.7;
+	stroke-linecap: round; stroke-linejoin: round;
+}
+.bg-toggle .dot-ind {
+	margin-left: auto; width: 9px; height: 9px; border-radius: 50%;
+	background: var(--line); transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.bg-toggle:hover { border-color: var(--amber-2); color: var(--ink); }
+.bg-toggle.on {
+	color: var(--ink); border-color: var(--amber-2);
+	background: linear-gradient(180deg, #2c1d11, #1c130b);
+	box-shadow: inset 0 0 0 1px rgba(255,140,26,0.25);
+}
+.bg-toggle.on .dot-ind { background: var(--amber); box-shadow: 0 0 8px var(--amber-2); }
+.field-label {
+	font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.12em;
+	color: var(--muted);
+}
+.field-label b { color: var(--amber); font-weight: 700; letter-spacing: 0.04em; }
+
+.song {
+	width: 100%; padding: 9px 12px;
+	background: #1a110a; color: var(--ink);
+	border: 1px solid var(--line); border-radius: 9px;
+	font-family: inherit; font-size: 1em; cursor: pointer;
+	appearance: none;
+	background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+	                  linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+	background-position: right 16px center, right 11px center;
+	background-size: 5px 5px, 5px 5px;
+	background-repeat: no-repeat;
+}
+
+/* range slider */
+.tempo { width: 100%; -webkit-appearance: none; appearance: none; background: transparent; }
+.tempo::-webkit-slider-runnable-track {
+	height: 6px; border-radius: 4px; background: var(--line);
+}
+.tempo::-moz-range-track { height: 6px; border-radius: 4px; background: var(--line); }
+.tempo::-webkit-slider-thumb {
+	-webkit-appearance: none; appearance: none;
+	width: 22px; height: 22px; border-radius: 50%; margin-top: -8px;
+	background: linear-gradient(160deg, var(--amber), var(--amber-2));
+	box-shadow: 0 2px 6px rgba(0,0,0,0.5); cursor: pointer;
+}
+.tempo::-moz-range-thumb {
+	width: 22px; height: 22px; border: 0; border-radius: 50%;
+	background: linear-gradient(160deg, var(--amber), var(--amber-2));
+	box-shadow: 0 2px 6px rgba(0,0,0,0.5); cursor: pointer;
+}
+
+.beatdots {
+	grid-area: dots;
+	display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
+	padding-top: 4px;
+}
+.beatdots .dot {
+	width: 9px; height: 9px; border-radius: 50%;
+	background: var(--line); transition: background 0.05s ease, transform 0.05s ease;
+}
+.beatdots .dot.on { background: var(--amber); transform: scale(1.35); box-shadow: 0 0 8px var(--amber-2); }
+
+/* ---- about ----------------------------------------------------------------- */
+.about { color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
+.about h2 {
+	color: var(--ink); font-size: 1.1em; text-transform: uppercase;
+	letter-spacing: 0.14em; font-weight: 700; margin: 0 0 0.6em;
+}
+.about p { margin: 0 0 0.8em; }
+.about strong { color: var(--ink); }
+.about a { color: var(--amber); }
+.about .history { font-size: 0.92em; }
+kbd {
+	font-family: inherit; font-size: 0.85em;
+	background: #1a110a; border: 1px solid var(--line); border-radius: 5px;
+	padding: 1px 6px; color: var(--ink);
+}
+
+/* ---- footer ---------------------------------------------------------------- */
+.foot { text-align: center; color: var(--muted); font-size: 0.85em; padding: 8px 16px 28px; }
+.foot p { margin: 0; }
+
+/* ---- tablet: wider transport ---------------------------------------------- */
+@media (min-width: 620px) and (max-width: 899px) {
+	.transport {
+		grid-template-columns: auto 1.3fr 1.3fr;
+		grid-template-areas:
+			"play song tempo"
+			"play bg   bg"
+			"dots dots dots";
+	}
+}
+
+/* ---- desktop / landscape: studio two-column layout ------------------------- */
+@media (min-width: 900px) {
+	.instrument {
+		max-width: 1040px;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 360px;
+		grid-template-areas:
+			"stage pads"
+			"stage transport"
+			"about about";
+		align-items: start;
+		gap: 22px 28px;
+	}
+	/* Keep the stage at the photo's exact aspect ratio so the <img> (cover) and
+	   the <svg> zone overlay (meet) scale identically — otherwise the highlights
+	   drift from the drums. Do NOT stretch to the grid row height. */
+	.stage { grid-area: stage; align-self: start; }
+	.pads-wrap { grid-area: pads; }
+	.transport {
+		grid-area: transport;
+		grid-template-columns: auto 1fr;
+		grid-template-areas:
+			"play song"
+			"play tempo"
+			"bg   bg"
+			"dots dots";
+	}
+	.about { grid-area: about; }
+	.pads { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+	.pad { min-height: 92px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.zone.lit .z-glow, .pad.struck, .stage.pulse::after { animation-duration: 1ms; }
+}
+
+/* --- App footer meta (version · source) --- */
+.foot .app-meta { margin: .4rem 0 0; font-size: .8rem; opacity: .85; }
+.foot .app-source { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.foot .app-privacy { margin: 0; font-size: .8rem; opacity: .85; }

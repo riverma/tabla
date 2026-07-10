@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="theme-color" content="#1a120b">
+	<title>Rishi Verma &mdash; Virtual Tabla</title>
+	<meta name="description" content="An in-browser tabla you can play with your keyboard or touch, with auto-play taals and adjustable tempo.">
+	<link rel="stylesheet" href="app/tabla.css">
+	<link rel="manifest" href="manifest.webmanifest">
+	<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+	<link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+
+<header class="topbar">
+	<a class="home" href="https://riverma.com/">Rishi&nbsp;Verma</a>
+	<span class="topbar-title">Virtual Tabla</span>
+	<a class="info-link" href="#about">About</a>
+</header>
+
+<main class="instrument">
+
+	<!-- The two drums. Each bol has its own zone (positions match the original
+	     Flash app). Tap a zone, the pads, or use your keyboard. -->
+	<div id="stage" class="stage" aria-label="Tabla drums">
+		<img class="stage-bg" src="app/img/tabla-bg.jpg"
+		     alt="A pair of tabla drums on a wooden floor" draggable="false">
+		<svg id="zones" class="zones" viewBox="0 0 614 461" preserveAspectRatio="xMidYMid meet"></svg>
+		<button id="labelToggle" class="label-toggle" type="button" aria-pressed="true">Labels</button>
+		<p id="loading" class="loading" role="status" aria-live="polite" hidden>Loading sounds…</p>
+	</div>
+
+	<!-- Bol pads: the playable syllables, grouped by drum. -->
+	<section class="pads-wrap" aria-label="Bols">
+		<div id="pads" class="pads"></div>
+		<p class="pads-hint">Tap a bol, tap a drum, or use your keyboard.</p>
+	</section>
+
+	<!-- Transport: auto-play taals with adjustable tempo. -->
+	<section class="transport" aria-label="Auto-play">
+		<button id="playBtn" class="play" type="button" aria-label="Play">
+			<svg class="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+			<svg class="ico-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+		</button>
+		<label class="field song-field">
+			<span class="field-label">Taal</span>
+			<select id="song" class="song"></select>
+		</label>
+		<label class="field tempo-field">
+			<span class="field-label">Tempo <b><span id="tempoVal">150</span> bpm</b></span>
+			<input id="tempo" class="tempo" type="range" min="60" max="260" step="2" value="150"
+			       aria-label="Tempo in beats per minute">
+		</label>
+		<button id="bgToggle" class="bg-toggle" type="button" aria-pressed="false"
+		        aria-label="Toggle background song">
+			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17V5l10-2v12"/><circle cx="6" cy="17" r="3"/><circle cx="16" cy="15" r="3"/></svg>
+			<span>Background song</span>
+			<span class="dot-ind" aria-hidden="true"></span>
+		</button>
+		<div id="beatdots" class="beatdots" aria-hidden="true"></div>
+	</section>
+
+	<section id="about" class="about">
+		<h2>About</h2>
+		<p>The <strong>Virtual Tabla</strong> simulates the North&nbsp;Indian classical percussion
+		pair: the smaller treble drum (dāyāñ) and the larger bass drum (bāyāñ). Strike a drum or a
+		bol to play, and watch it light up.</p>
+		<p><strong>Keyboard:</strong> <kbd>S</kbd> Ge · <kbd>E</kbd> Ke · <kbd>J</kbd> Na ·
+		<kbd>K</kbd> Tin · <kbd>L</kbd> Tun · <kbd>O</kbd> Te · <kbd>Space</kbd> play/stop.</p>
+		<p><strong>Auto-play</strong> cycles classical taals — Dādrā, Tīntāl, Jhaptāl, Keherwā — at a
+		tempo you set. Switch on the <strong>background song</strong> to loop a melodic accompaniment
+		underneath.</p>
+		<p class="history">Originally built in 2007 in Adobe Flash and featured in several online
+		publications. <a href="legacy-flash.html">The archived Flash version is still here.</a></p>
+	</section>
+
+</main>
+
+<footer class="foot">
+	<p class="app-privacy">No data collected &middot; no tracking &middot; runs entirely on your device. 100% private.</p>
+	<p class="app-meta"><span class="app-version">v1.0.0</span> &middot; <a class="app-source" href="https://github.com/riverma/tabla" target="_blank" rel="noopener">Source &middot; code AGPL-3.0</a></p>
+	<p>Audio &amp; artwork &copy; Rishi Verma. All rights reserved.</p>
+</footer>
+
+<script src="app/tabla.js"></script>
+<script>
+	if ('serviceWorker' in navigator) {
+		window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+	}
+</script>
+</body>
+</html>
