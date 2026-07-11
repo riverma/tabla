@@ -1,7 +1,7 @@
 /* Virtual Tabla — offline service worker.
  * Cache-first: the whole app shell is precached, so it runs with no network.
  * Bump VERSION on every release so clients pick up new assets (see AGENTS.md). */
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.0.1';
 const CACHE = `tabla-${VERSION}`;
 
 const ASSETS = [

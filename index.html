@@ -79,7 +79,7 @@
 
 <footer class="foot">
 	<p class="app-privacy">No data collected &middot; no tracking &middot; runs entirely on your device. 100% private.</p>
-	<p class="app-meta"><span class="app-version">v1.0.0</span> &middot; <a class="app-source" href="https://github.com/riverma/tabla" target="_blank" rel="noopener">Source &middot; code AGPL-3.0</a></p>
+	<p class="app-meta"><span class="app-version">v1.0.1</span> &middot; <a class="app-source" href="https://github.com/riverma/tabla" target="_blank" rel="noopener">Source &middot; code AGPL-3.0</a></p>
 	<p>Audio &amp; artwork &copy; Rishi Verma. All rights reserved.</p>
 </footer>
 
@@ -88,6 +88,41 @@
 	if ('serviceWorker' in navigator) {
 		window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
 	}
+</script>
+<script>
+/* Install helper: when opened via #install (from apps.riverma.com), prompt or guide install for THIS app. */
+(function () {
+  if (location.hash !== '#install') return;
+  if ((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone) return;
+  var deferred = null, bar = null;
+  function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+  function render(){
+    if (bar) bar.remove();
+    bar = document.createElement('div');
+    bar.setAttribute('role','dialog'); bar.setAttribute('aria-label','Install this app');
+    bar.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483647;background:#16233f;color:#fff;padding:12px 14px;border-radius:12px;font:600 14px/1.45 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;display:flex;gap:10px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.35)';
+    var msg=document.createElement('span'); msg.style.flex='1';
+    if (deferred){
+      msg.textContent='Add this app to your device.';
+      var ib=document.createElement('button'); ib.textContent='Install';
+      ib.style.cssText='background:#fff;color:#16233f;border:0;border-radius:999px;padding:8px 16px;font-weight:800;cursor:pointer;white-space:nowrap';
+      ib.onclick=function(){ deferred.prompt(); deferred.userChoice.then(function(){ if(bar) bar.remove(); }); };
+      bar.appendChild(msg); bar.appendChild(ib);
+    } else if (isIOS()){
+      msg.innerHTML='To install: tap the <b>Share</b> button, then <b>Add to Home Screen</b>.';
+      bar.appendChild(msg);
+    } else {
+      msg.innerHTML='To install: open your browser menu, then <b>Install</b> or <b>Add to Home screen</b>.';
+      bar.appendChild(msg);
+    }
+    var x=document.createElement('button'); x.textContent='\u2715'; x.setAttribute('aria-label','Dismiss');
+    x.style.cssText='background:transparent;color:#fff;border:0;font-size:16px;line-height:1;cursor:pointer;padding:4px';
+    x.onclick=function(){ if(bar) bar.remove(); };
+    bar.appendChild(x); document.body.appendChild(bar);
+  }
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred=e; render(); });
+  window.addEventListener('load', function(){ setTimeout(function(){ if(!bar) render(); }, 500); });
+})();
 </script>
 </body>
 </html>
